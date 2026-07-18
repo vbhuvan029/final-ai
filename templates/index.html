@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="home-hero card border-0 shadow-sm overflow-hidden mt-4">
+    <div class="home-hero-bg"></div>
+    <div class="card-body p-4 p-lg-5">
+        <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-lg-7 slide-up-animation">
+                <div class="home-kicker mb-3">
+                    <i class="fas fa-shield-heart me-2"></i>
+                    Smart, private, symptom-first health guidance
+                </div>
+                <h1 class="home-title mb-3">Your AI Health Assistant</h1>
+                <p class="home-subtitle text-muted mb-4">
+                    Get instant disease predictions based on your symptoms, find recommended doctors,
+                    and chat with our AI assistant for basic health guidance. A secure, smart, and efficient healthcare solution.
+                </p>
+                <div class="d-flex gap-3 flex-wrap home-actions">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('prediction.select_symptoms') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="fas fa-stethoscope me-2"></i>Check Symptoms
+                        </a>
+                        <a href="{{ url_for('auth.dashboard') }}" class="btn btn-outline-primary btn-lg rounded-pill px-4">
+                            Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                            Get Started
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg rounded-pill px-4">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="home-trust-row mt-4">
+                    <div class="home-trust-item">
+                        <span class="home-trust-dot bg-success"></span>
+                        Symptom analysis
+                    </div>
+                    <div class="home-trust-item">
+                        <span class="home-trust-dot bg-primary"></span>
+                        Doctor suggestions
+                    </div>
+                    <div class="home-trust-item">
+                        <span class="home-trust-dot bg-info"></span>
+                        AI chatbot support
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center float-animation">
+                <div class="home-visual">
+                    <div class="home-visual-ring"></div>
+                    <div class="home-visual-card">
+                        <div class="home-visual-icon">
+                            <i class="fas fa-user-doctor"></i>
+                        </div>
+                        <div class="home-visual-text">
+                            Symptom guided
+                            <span>AI health experience</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mt-5 pt-3 fade-in-animation">
+    <div class="section-heading text-center mb-4 mb-lg-5">
+        <span class="section-pill">What you can do</span>
+        <h2 class="section-title mt-3 mb-2">Built for a simple, polished health check flow</h2>
+        <p class="section-copy text-muted mb-0">
+            A clean experience that helps you start with symptoms, understand the likely condition, and move to the next step with confidence.
+        </p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm feature-card h-100 rounded-4">
+                <div class="card-body py-5 px-4">
+                    <div class="icon-circle bg-primary text-white mb-4 mx-auto shadow-sm feature-icon">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Symptom Analysis</h5>
+                    <p class="text-muted mb-0">Select symptoms from our checklist to get accurate disease predictions powered by AI.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm feature-card h-100 rounded-4">
+                <div class="card-body py-5 px-4">
+                    <div class="icon-circle bg-success text-white mb-4 mx-auto shadow-sm feature-icon">
+                        <i class="fas fa-user-md fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Doctor Recommendations</h5>
+                    <p class="text-muted mb-0">Find out which specialist you should consult and get nearby clinic or hospital suggestions tailored for you.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm feature-card h-100 rounded-4">
+                <div class="card-body py-5 px-4">
+                    <div class="icon-circle bg-info text-white mb-4 mx-auto shadow-sm feature-icon">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">AI Chatbot</h5>
+                    <p class="text-muted mb-0">Ask our AI assistant for basic health guidance and home remedies for common ailments instantly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 slide-up-animation">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-primary">Medical History</h2>
+            <p class="text-muted">A complete record of your symptom checks and predictions.</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if history %}
+            <form action="{{ url_for('prediction.clear_history') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear all your medical history? This action cannot be undone.');">
+                <button type="submit" class="btn btn-outline-danger rounded-pill shadow-sm fw-bold"><i class="fas fa-trash-alt me-2"></i>Clear All</button>
+            </form>
+            {% endif %}
+            <a href="{{ url_for('prediction.select_symptoms') }}" class="btn btn-primary rounded-pill shadow-sm fw-bold"><i class="fas fa-plus me-2"></i>New Check</a>
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in-animation">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-0">
+                {% if history %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 border-0">
+                            <thead class="bg-light text-muted">
+                                <tr>
+                                    <th class="ps-4 py-3 border-0">Date & Time</th>
+                                    <th class="py-3 border-0">Symptoms</th>
+                                    <th class="py-3 border-0">Predicted Disease</th>
+                                    <th class="py-3 border-0">Verdict</th>
+                                    <th class="py-3 border-0">Recommendation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in history %}
+                                <tr>
+                                    <td class="ps-4 border-light">
+                                        <div class="fw-bold text-dark">{{ item.get_local_timestamp().strftime('%B %d, %Y') }}</div>
+                                        <div class="text-muted small">{{ item.get_local_timestamp().strftime('%I:%M %p') }}</div>
+                                    </td>
+                                    <td class="border-light" style="max-width: 250px;">
+                                        <div class="text-truncate text-muted" data-bs-toggle="tooltip" title="{{ item.get_symptoms()|join(', ')|replace('_', ' ')|title }}">
+                                            {{ item.get_symptoms()[:3]|join(', ')|replace('_', ' ')|title }}
+                                            {% if item.get_symptoms()|length > 3 %}...{% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="border-light">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-2 fs-6">
+                                            {{ item.predicted_disease }}
+                                        </span>
+                                    </td>
+                                    <td class="border-light">
+                                        <span class="badge {% if item.prediction_state == 'high_confidence' %}bg-success{% elif item.prediction_state == 'need_more_symptoms' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} bg-opacity-10 border rounded-pill px-3 py-2">
+                                            {% if item.prediction_state == 'high_confidence' %}
+                                                Strong match
+                                            {% elif item.prediction_state == 'need_more_symptoms' %}
+                                                Need more symptoms
+                                            {% else %}
+                                                Mixed symptoms
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="border-light">
+                                        <div class="fw-bold text-success">{{ item.recommended_doctor }}</div>
+                                        <div class="text-muted small"><i class="fas fa-hospital me-1"></i>{{ item.recommended_hospital }}</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 my-5 text-muted">
+                        <div class="icon-circle bg-light text-muted mb-3 mx-auto d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-clipboard fa-2x"></i>
+                        </div>
+                        <h4>No History Found</h4>
+                        <p>You haven't made any disease predictions yet.</p>
+                        <a href="{{ url_for('prediction.select_symptoms') }}" class="btn btn-primary rounded-pill mt-3 px-4 shadow-sm fw-bold">Start Your First Check</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+{% endblock %}

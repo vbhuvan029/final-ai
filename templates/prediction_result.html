@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center prediction-result-page">
+    <div class="col-lg-11 col-xl-10">
+        <div class="text-center mb-5 slide-up-animation">
+            <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-4 py-2 mb-3 shadow-sm">
+                <i class="fas fa-clipboard-check"></i>
+                AI Analysis Report
+            </div>
+            <h2 class="fw-bold text-primary mb-2">Prediction Results</h2>
+            <p class="text-muted mb-0">Based on the symptoms you selected, here is the AI summary with the strongest match, supporting evidence, and next steps.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7 fade-in-animation">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
+                    <div class="card-header bg-primary text-white py-3 border-0">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-microscope me-2"></i>Top Match</h5>
+                            <span class="badge bg-white text-primary rounded-pill px-3 py-2">{{ confidence_label }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
+                            <div>
+                                <div class="text-uppercase fw-bold text-muted small mb-2">Most likely disease</div>
+                                <h3 class="fw-bold text-dark mb-1">{{ predictions[0].disease }}</h3>
+                                <p class="text-muted mb-0">The model matched your symptom pattern with the highest confidence here.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold text-dark mb-0">Confidence meter</h6>
+                                <span class="badge bg-light text-muted border rounded-pill px-3 py-2">{{ confidence_label }}</span>
+                            </div>
+                            <div class="confidence-meter">
+                                <span class="meter-bar {% if confidence >= 20 %}active {% endif %}{% if confidence < 40 %}low{% elif confidence < 75 %}medium{% else %}high{% endif %}"></span>
+                                <span class="meter-bar {% if confidence >= 40 %}active {% endif %}{% if confidence < 40 %}low{% elif confidence < 75 %}medium{% else %}high{% endif %}"></span>
+                                <span class="meter-bar {% if confidence >= 60 %}active {% endif %}{% if confidence < 40 %}low{% elif confidence < 75 %}medium{% else %}high{% endif %}"></span>
+                                <span class="meter-bar {% if confidence >= 80 %}active {% endif %}{% if confidence < 40 %}low{% elif confidence < 75 %}medium{% else %}high{% endif %}"></span>
+                                <span class="meter-bar {% if confidence >= 92 %}active {% endif %}{% if confidence < 40 %}low{% elif confidence < 75 %}medium{% else %}high{% endif %}"></span>
+                            </div>
+                        </div>
+
+                        {% if result_state == 'high_confidence' %}
+                        <div class="alert alert-success border-0 rounded-4 py-3 px-4 shadow-sm">
+                            <i class="fas fa-circle-check me-2"></i>
+                            The symptom pattern strongly supports this diagnosis.
+                        </div>
+                        {% elif result_state == 'need_more_symptoms' %}
+                        <div class="alert alert-warning border-0 rounded-4 py-3 px-4 shadow-sm">
+                            <i class="fas fa-triangle-exclamation me-2"></i>
+                            More symptoms may help narrow this down with better certainty.
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info border-0 rounded-4 py-3 px-4 shadow-sm">
+                            <i class="fas fa-circle-info me-2"></i>
+                            The result is a cautious match because the symptom set could fit more than one condition.
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-3">Why it was matched</h6>
+                            <div class="p-4 rounded-4 bg-light border">
+                                <p class="mb-0 text-muted" style="line-height: 1.8;">{{ explanation }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-dark mb-0">Matched symptoms</h6>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-2">{{ matched_symptoms|length }} signs</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for symptom in matched_symptoms %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill p-2 px-3 text-capitalize shadow-sm">
+                                        <i class="fas fa-check me-1"></i>{{ symptom.replace('_', ' ') }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <h6 class="fw-bold text-dark mb-3">Secondary possibilities</h6>
+                            {% if secondary_possibilities %}
+                                <div class="row g-3">
+                                    {% for item in secondary_possibilities %}
+                                    <div class="col-md-6">
+                                        <div class="border rounded-4 p-3 h-100 bg-white shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                                <strong class="text-dark">{{ item.disease }}</strong>
+                                                <span class="badge bg-light text-muted border rounded-pill">Alt {{ loop.index }}</span>
+                                            </div>
+                                            <p class="text-muted mb-0 small" style="line-height: 1.6;">{{ item.why }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-light border rounded-4 mb-0 text-muted">
+                                    No strong secondary possibilities were returned for this symptom set.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 fade-in-animation" style="animation-delay: 0.15s;">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
+                    <div class="card-header bg-success text-white py-3 border-0">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-user-doctor me-2"></i>What to do next</h5>
+                    </div>
+                    <div class="card-body p-4 p-md-5 d-flex flex-column gap-4">
+                        <div class="alert bg-success-subtle border-0 rounded-4 p-4 mb-0 shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-circle bg-white text-success me-3 flex-shrink-0 shadow-sm d-flex justify-content-center align-items-center" style="width: 54px; height: 54px;">
+                                    <i class="fas fa-stethoscope fa-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1 text-uppercase" style="font-size: 0.78rem;">Recommended Specialist</h6>
+                                    <h4 class="fw-bold text-success mb-0">{{ doctor }}</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert bg-info-subtle border-0 rounded-4 p-4 mb-0 shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-circle bg-white text-info me-3 flex-shrink-0 shadow-sm d-flex justify-content-center align-items-center" style="width: 54px; height: 54px;">
+                                    <i class="fas fa-hospital fa-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1 text-uppercase" style="font-size: 0.78rem;">Suggested Nearby Hospital</h6>
+                                    <h5 class="fw-bold text-dark mb-0">{{ hospital }}</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-4 p-4 bg-white shadow-sm">
+                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-circle-check me-2"></i>What to do</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for item in recommendations.do %}
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="border rounded-4 p-4 bg-white shadow-sm">
+                            <h6 class="fw-bold text-danger mb-3"><i class="fas fa-circle-xmark me-2"></i>What not to do</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for item in recommendations.dont %}
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="border rounded-4 p-4 bg-white shadow-sm">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-lightbulb me-2"></i>Try This</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for item in recommendations['try'] %}
+                                <li class="mb-2"><i class="fas fa-bolt text-primary me-2"></i>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mt-4 fade-in-animation" style="animation-delay: 0.3s;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-dark">Symptoms analyzed</h5>
+                        <p class="text-muted mb-0">These are the symptoms that were sent to the AI model for the prediction.</p>
+                    </div>
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2">{{ symptoms|length }} selected</span>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for symptom in symptoms %}
+                        <span class="badge bg-light text-dark border p-2 px-3 rounded-pill text-capitalize fs-6 shadow-sm">
+                            {{ symptom.replace('_', ' ') }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 mb-4">
+            <a href="{{ url_for('prediction.select_symptoms') }}" class="btn btn-outline-primary btn-lg rounded-pill px-4 me-2 shadow-sm fw-bold">Test Again</a>
+            <a href="{{ url_for('prediction.history') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow fw-bold">View History</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .confidence-meter {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        background: rgba(248, 250, 252, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .meter-bar {
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(226, 232, 240, 0.95);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .meter-bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.25s ease;
+        border-radius: inherit;
+    }
+
+    .meter-bar.active::after { transform: scaleX(1); }
+    .meter-bar.low::after { background: linear-gradient(90deg, #fca5a5, #ef4444); }
+    .meter-bar.medium::after { background: linear-gradient(90deg, #fde68a, #f59e0b); }
+    .meter-bar.high::after { background: linear-gradient(90deg, #86efac, #10b981); }
+</style>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-hero card border-0 shadow-sm rounded-5 overflow-hidden fade-in-animation mb-4">
+    <div class="dashboard-hero-accent"></div>
+    <div class="card-body p-4 p-lg-5 position-relative">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="page-kicker">Dashboard overview</span>
+                <h1 class="page-title mt-3 mb-3">Welcome, {{ current_user.name }}!</h1>
+                <p class="page-copy text-muted mb-0">Here is an overview of your medical interactions.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="dashboard-badge">
+                    <i class="fas fa-chart-line me-2"></i>
+                    {{ history_count }} total predictions
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 fade-in-animation">
+    <div class="col-lg-5">
+        <a href="{{ url_for('prediction.select_symptoms') }}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-4 h-100 feature-card hover-lift dashboard-action-card">
+                <div class="card-body p-4 p-xl-5 d-flex align-items-center gap-4">
+                    <div class="icon-circle bg-success-subtle text-success dashboard-action-icon">
+                        <i class="fas fa-stethoscope fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">New Prediction</h5>
+                        <p class="text-muted mb-0">Check your symptoms now</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-5">
+        <a href="{{ url_for('chatbot.chat_interface') }}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-4 h-100 feature-card hover-lift dashboard-action-card">
+                <div class="card-body p-4 p-xl-5 d-flex align-items-center gap-4">
+                    <div class="icon-circle bg-info-subtle text-info dashboard-action-icon">
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">AI Chatbot</h5>
+                        <p class="text-muted mb-0">Ask for health guidance</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12">
+        <a href="{{ url_for('prediction.history') }}" class="text-decoration-none">
+            <div class="dashboard-history card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Recent Activity</h5>
+                        <p class="text-muted mb-0">View your prediction history and previous analysis results.</p>
+                    </div>
+                    <span class="btn btn-primary rounded-pill px-4 fw-bold">Open History</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+{% endblock %}

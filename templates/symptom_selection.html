@@ -1,0 +1,493 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-11">
+        <div class="symptom-hero card border-0 shadow-sm rounded-5 overflow-hidden fade-in-animation">
+            <div class="symptom-hero-accent"></div>
+            <div class="card-body p-4 p-lg-5 position-relative">
+                <div class="row align-items-center g-4 g-lg-5">
+                    <div class="col-lg-7">
+                        <div class="symptom-kicker mb-3">
+                            <i class="fas fa-heart-pulse me-2"></i>
+                            AI-powered symptom analysis
+                        </div>
+                        <h1 class="symptom-title mb-3">Symptom Checker</h1>
+                        <p class="symptom-subtitle text-muted mb-4">
+                            Select the symptoms you are experiencing to get a disease prediction.
+                        </p>
+
+                        <div class="symptom-stats">
+                            <div class="symptom-stat">
+                                <span class="symptom-stat-value">{{ symptoms|length }}</span>
+                                <span class="symptom-stat-label">Symptoms available</span>
+                            </div>
+                            <div class="symptom-stat">
+                                <span class="symptom-stat-value">Search</span>
+                                <span class="symptom-stat-label">Find symptoms quickly</span>
+                            </div>
+                            <div class="symptom-stat">
+                                <span class="symptom-stat-value">Multi-select</span>
+                                <span class="symptom-stat-label">Pick more than one</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 text-lg-end">
+                        <div class="symptom-visual">
+                            <div class="symptom-visual-ring"></div>
+                            <div class="symptom-visual-card">
+                                <div class="icon-circle bg-primary text-white mx-auto shadow-sm symptom-visual-icon">
+                                    <i class="fas fa-list-check"></i>
+                                </div>
+                                <h5 class="mb-2 fw-bold text-dark">Start with your symptoms</h5>
+                                <p class="mb-0 text-muted">Choose the signs you feel right now, then continue to the analysis step.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('prediction.select_symptoms') }}" id="symptomForm" class="symptom-form mt-4 mt-lg-5">
+                    <div class="symptom-toolbar">
+                        <div class="position-relative flex-grow-1">
+                            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" class="form-control form-control-lg symptom-search ps-5" id="symptomSearch" placeholder="Search symptoms...">
+                        </div>
+                        <div class="symptom-counter">
+                            <span id="selectedCount">0</span>
+                            <small>selected</small>
+                        </div>
+                    </div>
+
+                    <div class="symptom-panel mt-4">
+                        <div class="row g-3 custom-scrollbar" id="symptomsList">
+                            {% for symptom in symptoms %}
+                            <div class="col-md-4 col-sm-6 symptom-item">
+                                <div class="form-check custom-checkbox-card">
+                                    <input class="form-check-input d-none" type="checkbox" name="symptoms" value="{{ symptom }}" id="symp_{{ loop.index }}">
+                                    <label class="form-check-label w-100 symptom-chip shadow-sm cursor-pointer" for="symp_{{ loop.index }}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="check-indicator me-3 border rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-check text-white d-none"></i>
+                                            </div>
+                                            <span>{{ symptom.replace('_', ' ') }}</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="symptom-actions mt-4 pt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold symptom-submit">
+                            Predict Disease <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="analysisOverlay" class="analysis-overlay d-none">
+    <div class="analysis-card shadow-lg">
+        <div class="analysis-badge">
+            <i class="fas fa-wave-square"></i>
+            AI analysis in progress
+        </div>
+        <h3 class="fw-bold mt-3 mb-2">Scanning symptom patterns...</h3>
+        <p class="text-muted mb-4">Reading the selected symptoms, comparing patterns, and preparing the result page.</p>
+
+        <div class="analysis-grid">
+            <div class="analysis-node active">Symptoms</div>
+            <div class="analysis-node active">Pattern</div>
+            <div class="analysis-node active">AI</div>
+            <div class="analysis-node pulse">Result</div>
+        </div>
+
+        <div class="analysis-bars mt-4">
+            <div class="analysis-bar"></div>
+            <div class="analysis-bar"></div>
+            <div class="analysis-bar"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .symptom-hero {
+        position: relative;
+        background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,250,255,0.93));
+        border: 1px solid rgba(13, 110, 253, 0.08);
+    }
+
+    .symptom-hero-accent {
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top right, rgba(13, 110, 253, 0.12), transparent 28%),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%);
+        pointer-events: none;
+    }
+
+    .symptom-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        background: rgba(13, 110, 253, 0.08);
+        color: #0d6efd;
+        font-weight: 700;
+        font-size: 0.92rem;
+    }
+
+    .symptom-title {
+        font-size: clamp(2.3rem, 3.8vw, 3.8rem);
+        font-weight: 800;
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        color: #0f172a;
+    }
+
+    .symptom-subtitle {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        max-width: 56ch;
+    }
+
+    .symptom-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+    }
+
+    .symptom-stat {
+        min-width: 155px;
+        padding: 1rem 1.1rem;
+        border-radius: 1.2rem;
+        background: rgba(255,255,255,0.85);
+        border: 1px solid rgba(13, 110, 253, 0.08);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .symptom-stat-value {
+        display: block;
+        font-size: 1.06rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .symptom-stat-label {
+        display: block;
+        margin-top: 0.2rem;
+        color: #64748b;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+
+    .symptom-visual {
+        position: relative;
+        min-height: 280px;
+        display: grid;
+        place-items: center;
+    }
+
+    .symptom-visual-ring {
+        position: absolute;
+        width: min(78vw, 290px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at center, rgba(255,255,255,0.96) 42%, rgba(13,110,253,0.08) 43%, rgba(13,110,253,0.08) 55%, transparent 56%),
+            radial-gradient(circle at center, rgba(16,185,129,0.12), transparent 70%);
+        filter: drop-shadow(0 22px 42px rgba(15, 23, 42, 0.12));
+    }
+
+    .symptom-visual-card {
+        position: relative;
+        z-index: 1;
+        width: min(88%, 300px);
+        padding: 2rem 1.6rem;
+        border-radius: 1.8rem;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(13, 110, 253, 0.12);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10);
+    }
+
+    .symptom-visual-icon {
+        width: 84px;
+        height: 84px;
+        border-radius: 24px;
+        display: grid;
+        place-items: center;
+        font-size: 2rem;
+    }
+
+    .symptom-form {
+        position: relative;
+        z-index: 1;
+    }
+
+    .symptom-toolbar {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .symptom-search {
+        border: 1px solid rgba(13, 110, 253, 0.10);
+        background: rgba(255,255,255,0.92);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+        border-radius: 1.1rem;
+        min-height: 58px;
+    }
+
+    .symptom-search:focus {
+        border-color: rgba(13, 110, 253, 0.35);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+    }
+
+    .symptom-counter {
+        min-width: 130px;
+        padding: 0.9rem 1rem;
+        border-radius: 1.1rem;
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(16, 185, 129, 0.08));
+        border: 1px solid rgba(13, 110, 253, 0.10);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .symptom-counter span {
+        font-size: 1.5rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #0f172a;
+    }
+
+    .symptom-counter small {
+        margin-top: 0.25rem;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .symptom-panel {
+        padding: 1.15rem;
+        border-radius: 1.5rem;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(13, 110, 253, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 12px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .symptom-panel #symptomsList {
+        max-height: 420px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .symptom-chip {
+        display: block;
+        padding: 1rem 1.05rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96));
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .symptom-chip:hover {
+        transform: translateY(-2px);
+        border-color: rgba(13, 110, 253, 0.28);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10) !important;
+    }
+
+    .check-indicator {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        border-color: rgba(13, 110, 253, 0.22) !important;
+        background: #fff;
+        transition: all 0.2s ease;
+    }
+
+    .symptom-chip.bg-primary .check-indicator {
+        background: rgba(255,255,255,0.18);
+    }
+
+    .symptom-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .symptom-submit {
+        min-width: 220px;
+        min-height: 56px;
+    }
+
+    .analysis-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.62);
+        backdrop-filter: blur(14px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .analysis-card {
+        width: min(560px, 100%);
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 28px;
+        padding: 32px;
+        border: 1px solid rgba(255,255,255,0.72);
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+    }
+
+    .analysis-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(16,185,129,0.12));
+        color: #0284c7;
+        font-weight: 900;
+    }
+
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .analysis-node {
+        text-align: center;
+        padding: 12px 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(14,165,233,0.12);
+        background: rgba(248, 251, 255, 0.92);
+        font-weight: 800;
+        color: #64748b;
+    }
+
+    .analysis-node.active {
+        background: linear-gradient(135deg, rgba(14,165,233,0.10), rgba(16,185,129,0.10));
+        color: #0f172a;
+    }
+
+    .analysis-node.pulse {
+        animation: pulseGlow 1.4s ease-in-out infinite;
+    }
+
+    .analysis-bars {
+        display: grid;
+        gap: 12px;
+    }
+
+    .analysis-bar {
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(14,165,233,0.14), rgba(16,185,129,0.18), rgba(14,165,233,0.14));
+        background-size: 200% 100%;
+        animation: moveBar 1.2s linear infinite;
+    }
+
+    .analysis-bar:nth-child(2) { width: 88%; animation-delay: 0.15s; }
+    .analysis-bar:nth-child(3) { width: 72%; animation-delay: 0.3s; }
+
+    @keyframes moveBar {
+        from { background-position: 0% 50%; }
+        to { background-position: 200% 50%; }
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(14,165,233,0); }
+        50% { transform: scale(1.02); box-shadow: 0 0 28px rgba(14,165,233,0.18); }
+    }
+
+    @media (max-width: 640px) {
+        .analysis-card { padding: 22px; border-radius: 22px; }
+        .analysis-grid { grid-template-columns: repeat(2, 1fr); }
+        .symptom-toolbar { flex-direction: column; }
+        .symptom-counter { width: 100%; }
+        .symptom-actions { justify-content: stretch; }
+        .symptom-submit { width: 100%; }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('symptomSearch');
+        const symptomItems = document.querySelectorAll('.symptom-item');
+        const checkboxes = document.querySelectorAll('.form-check-input');
+        const countDisplay = document.getElementById('selectedCount');
+        const symptomForm = document.getElementById('symptomForm');
+        const overlay = document.getElementById('analysisOverlay');
+        let submitting = false;
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            symptomItems.forEach(item => {
+                const label = item.querySelector('.form-check-label').textContent.toLowerCase();
+                item.style.display = label.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const checkedCount = document.querySelectorAll('.form-check-input:checked').length;
+                countDisplay.textContent = checkedCount;
+
+                const label = this.nextElementSibling;
+                const indicator = label.querySelector('.check-indicator');
+                const icon = indicator.querySelector('i');
+
+                if (this.checked) {
+                    label.classList.add('bg-primary', 'border-primary', 'text-white');
+                    label.classList.remove('bg-white');
+                    indicator.classList.add('bg-white');
+                    indicator.classList.remove('border');
+                    icon.classList.remove('d-none');
+                    icon.classList.add('text-primary');
+                } else {
+                    label.classList.remove('bg-primary', 'border-primary', 'text-white');
+                    label.classList.add('bg-white');
+                    indicator.classList.remove('bg-white');
+                    indicator.classList.add('border');
+                    icon.classList.add('d-none');
+                    icon.classList.remove('text-primary');
+                }
+            });
+        });
+
+        symptomForm.addEventListener('submit', function(e) {
+            const checkedCount = document.querySelectorAll('.form-check-input:checked').length;
+            if (checkedCount === 0) {
+                e.preventDefault();
+                alert('Please select at least one symptom.');
+                return;
+            }
+
+            if (submitting) return;
+            submitting = true;
+            e.preventDefault();
+            overlay.classList.remove('d-none');
+
+            setTimeout(() => {
+                symptomForm.submit();
+            }, 350);
+        });
+    });
+</script>
+{% endblock %}

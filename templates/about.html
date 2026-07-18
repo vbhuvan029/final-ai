@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4 fade-in-animation">
+    <div class="col-12 col-xl-10">
+        <div class="page-hero card border-0 shadow-sm rounded-5 overflow-hidden mb-4">
+            <div class="page-hero-accent"></div>
+            <div class="card-body p-4 p-lg-5 position-relative">
+                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-4">
+                    <div class="page-hero-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <span class="page-kicker">About this platform</span>
+                        <h1 class="page-title mt-3 mb-3">About the AI HealthCare System</h1>
+                        <p class="page-copy text-muted mb-0">
+                            This project is a final-year engineering application designed to bridge the gap between initial symptom onset and professional medical consultation. By leveraging Machine Learning techniques (Random Forest), the system provides preliminary disease predictions based on user-selected symptoms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-5 overflow-hidden">
+            <div class="card-body p-4 p-lg-5">
+                <div class="section-heading text-start mb-4">
+                    <span class="section-pill">Key features</span>
+                    <h2 class="section-title mt-3 mb-2">Designed to support early health guidance</h2>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="about-feature">
+                            <div class="about-feature-icon bg-primary-subtle text-primary">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">AI Prediction</h6>
+                                <p class="text-muted small mb-0">Trained Random Forest model for high-accuracy predictions.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="about-feature">
+                            <div class="about-feature-icon bg-info-subtle text-info">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Doctor Recommendation</h6>
+                                <p class="text-muted small mb-0">Directs patients to the correct specialist.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="about-feature">
+                            <div class="about-feature-icon bg-danger-subtle text-danger">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Hospital Suggestion</h6>
+                                <p class="text-muted small mb-0">Locates nearby clinics or hospitals.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="about-feature">
+                            <div class="about-feature-icon bg-warning-subtle text-warning">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Medical History</h6>
+                                <p class="text-muted small mb-0">Securely tracks your medical history and interactions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="disclaimer-box mt-5">
+                    <div class="d-flex gap-3">
+                        <div class="about-feature-icon bg-warning-subtle text-warning flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Medical Disclaimer</h6>
+                            <p class="text-muted small mb-0">This tool is for educational and informational purposes only. It is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

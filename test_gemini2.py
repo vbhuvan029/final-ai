@@ -1,7 +1,7 @@
 from google import genai
 
 try:
-    client = genai.Client(api_key='AIzaSyBzMJjEOWxCQBOTlj27yfVZCEADxEre29A')
+    client = genai.Client(api_key)
     response = client.models.generate_content(model='gemini-2.5-flash', contents='Hello')
     print("SUCCESS 2.5:", response.text)
 except Exception as e:
